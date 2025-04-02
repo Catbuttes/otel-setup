@@ -12,12 +12,21 @@ import (
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutlog"
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	lg "go.opentelemetry.io/otel/log"
 	"go.opentelemetry.io/otel/log/global"
+	mt "go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/log"
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
+	tr "go.opentelemetry.io/otel/trace"
+)
+
+var (
+	Tracer  tr.Tracer
+	Metrics mt.Meter
+	Log     lg.Logger
 )
 
 // SetupOTelSDK bootstraps the OpenTelemetry pipeline.
@@ -88,6 +97,10 @@ func SetupOTelSDK(ctx context.Context, appName ...string) (shutdown func(context
 	}
 	shutdownFuncs = append(shutdownFuncs, loggerProvider.Shutdown)
 	global.SetLoggerProvider(loggerProvider)
+
+	Tracer = tracerProvider.Tracer(app)
+	Metrics = meterProvider.Meter(app)
+	Log = loggerProvider.Logger(app)
 
 	return
 }
