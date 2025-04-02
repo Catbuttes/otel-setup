@@ -12,7 +12,6 @@ import (
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutlog"
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
-	lg "go.opentelemetry.io/otel/log"
 	"go.opentelemetry.io/otel/log/global"
 	mt "go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/propagation"
@@ -24,14 +23,18 @@ import (
 )
 
 var (
-	Tracer  tr.Tracer
+	// Tracer is used to initialise traces and spans
+	// Do not use until after SetupOtel has been called
+	Tracer tr.Tracer
+	// Metrics is used to set up metrics instances
+	// Do not use until after SetupOtel has been called
 	Metrics mt.Meter
-	Log     lg.Logger
+	//Log     lg.Logger
 )
 
 // SetupOTelSDK bootstraps the OpenTelemetry pipeline.
 // If it does not return an error, make sure to call shutdown for proper cleanup.
-func SetupOTelSDK(ctx context.Context, appName ...string) (shutdown func(context.Context) error, err error) {
+func SetupOTel(ctx context.Context, appName ...string) (shutdown func(context.Context) error, err error) {
 	var app = appName[0]
 	if app == "" {
 		app = os.Args[0]
@@ -100,7 +103,9 @@ func SetupOTelSDK(ctx context.Context, appName ...string) (shutdown func(context
 
 	Tracer = tracerProvider.Tracer(app)
 	Metrics = meterProvider.Meter(app)
-	Log = loggerProvider.Logger(app)
+	//Log = loggerProvider.Logger(app)
+
+	global.SetLoggerProvider(loggerProvider)
 
 	return
 }
