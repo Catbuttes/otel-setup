@@ -117,8 +117,6 @@ func SetupOTel(ctx context.Context, appName ...string) (shutdown func(context.Co
 	Metrics = meterProvider.Meter(app)
 	Log = loggerProvider.Logger(app)
 
-	global.SetLoggerProvider(loggerProvider)
-
 	return
 }
 
@@ -161,7 +159,9 @@ func newMeterProvider(res resource.Resource) (*metric.MeterProvider, error) {
 }
 
 func newLoggerProvider(res resource.Resource) (*log.LoggerProvider, error) {
-	logExporter, err := stdoutlog.New()
+	logExporter, err := stdoutlog.New(
+		stdoutlog.WithPrettyPrint(),
+	)
 	if err != nil {
 		return nil, err
 	}
