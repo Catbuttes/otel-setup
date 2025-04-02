@@ -34,6 +34,16 @@ var (
 	Log lg.Logger
 )
 
+func WriteLog(ctx context.Context, level lg.Severity, message string) {
+	var logMessage = lg.Record{}
+	logMessage.SetBody(lg.StringValue(message))
+	logMessage.SetSeverity(level)
+	logMessage.SetSeverityText(level.String())
+	logMessage.SetTimestamp(time.Now())
+
+	Log.Emit(ctx, logMessage)
+}
+
 // SetupOTelSDK bootstraps the OpenTelemetry pipeline.
 // If it does not return an error, make sure to call shutdown for proper cleanup.
 func SetupOTel(ctx context.Context, appName ...string) (shutdown func(context.Context) error, err error) {
