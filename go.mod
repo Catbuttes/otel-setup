@@ -1,4 +1,4 @@
-module github.com/Catbuttes/otel-setup
+module github.com/Catbuttes/otelsetup
 
 go 1.23.7
 

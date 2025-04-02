@@ -1,4 +1,4 @@
-package otelSetup
+package otelsetup
 
 import (
 	"context"
