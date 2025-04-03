@@ -9,9 +9,9 @@ import (
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/exporters/stdout/stdoutlog"
-	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
-	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	lg "go.opentelemetry.io/otel/log"
 	"go.opentelemetry.io/otel/log/global"
 	mt "go.opentelemetry.io/otel/metric"
@@ -30,11 +30,43 @@ var (
 	// Metrics is used to set up metrics instances
 	// Do not use until after SetupOtel has been called
 	Metrics mt.Meter
-
+	// Log is used for logging.
+	// You probably want to use the LogXxxx functions
+	// instead of calling this directly
 	Log lg.Logger
 )
 
-func WriteLog(ctx context.Context, level lg.Severity, message string) {
+// LogDebug writes a debug level log to the OTel Log Exporter
+// Do not use until after SetupOtel has been called
+func LogDebug(ctx context.Context, message string) {
+	writeLog(ctx, lg.SeverityDebug, message)
+}
+
+// LogInfo writes an info level log to the OTel Log Exporter
+// Do not use until after SetupOtel has been called
+func LogInfo(ctx context.Context, message string) {
+	writeLog(ctx, lg.SeverityInfo, message)
+}
+
+// LogWarn writes a warning level log to the OTel Log Exporter
+// Do not use until after SetupOtel has been called
+func LogWarn(ctx context.Context, message string) {
+	writeLog(ctx, lg.SeverityWarn, message)
+}
+
+// LogError writes an error level log to the OTel Log Exporter
+// Do not use until after SetupOtel has been called
+func LogError(ctx context.Context, message string) {
+	writeLog(ctx, lg.SeverityError, message)
+}
+
+// LogFatal writes a fatal level log to the OTel Log Exporter
+// Do not use until after SetupOtel has been called
+func LogFatal(ctx context.Context, message string) {
+	writeLog(ctx, lg.SeverityFatal, message)
+}
+
+func writeLog(ctx context.Context, level lg.Severity, message string) {
 	var logMessage = lg.Record{}
 	logMessage.SetBody(lg.StringValue(message))
 	logMessage.SetSeverity(level)
@@ -128,8 +160,7 @@ func newPropagator() propagation.TextMapPropagator {
 }
 
 func newTracerProvider(res resource.Resource) (*trace.TracerProvider, error) {
-	traceExporter, err := stdouttrace.New(
-		stdouttrace.WithPrettyPrint())
+	traceExporter, err := otlptracehttp.New(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -144,7 +175,7 @@ func newTracerProvider(res resource.Resource) (*trace.TracerProvider, error) {
 }
 
 func newMeterProvider(res resource.Resource) (*metric.MeterProvider, error) {
-	metricExporter, err := stdoutmetric.New()
+	metricExporter, err := otlpmetrichttp.New(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -159,9 +190,7 @@ func newMeterProvider(res resource.Resource) (*metric.MeterProvider, error) {
 }
 
 func newLoggerProvider(res resource.Resource) (*log.LoggerProvider, error) {
-	logExporter, err := stdoutlog.New(
-		stdoutlog.WithPrettyPrint(),
-	)
+	logExporter, err := otlploghttp.New(context.Background())
 	if err != nil {
 		return nil, err
 	}
