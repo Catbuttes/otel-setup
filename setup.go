@@ -36,31 +36,43 @@ var (
 	Log lg.Logger
 )
 
+// LogTrace writes a trace level log to the OTel Log Exporter
+//
+// Do not use until after SetupOtel has been called
+func LogTrace(ctx context.Context, message string) {
+	writeLog(ctx, lg.SeverityTrace, message)
+}
+
 // LogDebug writes a debug level log to the OTel Log Exporter
+//
 // Do not use until after SetupOtel has been called
 func LogDebug(ctx context.Context, message string) {
 	writeLog(ctx, lg.SeverityDebug, message)
 }
 
 // LogInfo writes an info level log to the OTel Log Exporter
+//
 // Do not use until after SetupOtel has been called
 func LogInfo(ctx context.Context, message string) {
 	writeLog(ctx, lg.SeverityInfo, message)
 }
 
 // LogWarn writes a warning level log to the OTel Log Exporter
+//
 // Do not use until after SetupOtel has been called
 func LogWarn(ctx context.Context, message string) {
 	writeLog(ctx, lg.SeverityWarn, message)
 }
 
 // LogError writes an error level log to the OTel Log Exporter
+//
 // Do not use until after SetupOtel has been called
 func LogError(ctx context.Context, message string) {
 	writeLog(ctx, lg.SeverityError, message)
 }
 
 // LogFatal writes a fatal level log to the OTel Log Exporter
+//
 // Do not use until after SetupOtel has been called
 func LogFatal(ctx context.Context, message string) {
 	writeLog(ctx, lg.SeverityFatal, message)
